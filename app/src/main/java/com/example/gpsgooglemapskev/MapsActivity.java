@@ -37,6 +37,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        // VERIFICACIÓN SEGURA DE API KEY - MEJORA DE SEGURIDAD
+        String mapsApiKey = getString(R.string.google_maps_key);
+        if (mapsApiKey.isEmpty() || mapsApiKey.equals("") || mapsApiKey.contains("TU_API_KEY")) {
+            Toast.makeText(this, "Error: Configuración de API Key no válida", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
@@ -49,6 +57,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (currentLatLng != null && mMap != null) {
                 mMap.addMarker(new MarkerOptions().position(currentLatLng).title("Marcador personalizado"));
                 Toast.makeText(this, "Marcador agregado", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "No se puede agregar marcador - ubicación no disponible", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -79,22 +89,40 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     } else {
                         Toast.makeText(this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show();
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al obtener ubicación: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
+
+        // VALIDACIÓN DE PERMISOS MEJORADA
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
-            getCurrentLocation();
+            try {
+                mMap.setMyLocationEnabled(true);
+                getCurrentLocation();
+            } catch (SecurityException e) {
+                Toast.makeText(this, "Error de seguridad en permisos de ubicación", Toast.LENGTH_SHORT).show();
+            }
         } else {
             checkLocationPermission();
         }
+
+        // MEJORA: Validación de clics largos en mapa
         mMap.setOnMapLongClickListener(latLng -> {
-            mMap.addMarker(new MarkerOptions().position(latLng).title("Marcador manual"));
+            if (mMap != null) {
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Marcador manual"));
+                Toast.makeText(this, "Marcador manual agregado", Toast.LENGTH_SHORT).show();
+            }
         });
+
+        // MEJORA: Configuración de UI segura
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
     }
 
     @Override
@@ -104,12 +132,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getCurrentLocation();
             } else {
-                Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permiso de ubicación denegado - Funcionalidad limitada", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    // Métodos ciclo vida MapView
+    // MÉTODOS DE CICLO DE VIDA MAPVIEW - MANTENIDOS
     @Override
     public void onResume() {
         super.onResume();

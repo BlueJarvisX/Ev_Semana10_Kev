@@ -6,10 +6,14 @@ android {
     namespace = "com.example.gpsgooglemapskev"
     compileSdk = 36
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.example.gpsgooglemapskev"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -17,8 +21,13 @@ android {
     }
 
     buildTypes {
-        release {
+        getByName("debug") {
             isMinifyEnabled = false
+            isDebuggable = true
+        }
+        release {
+            isMinifyEnabled = true
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -37,8 +46,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation("com.google.android.gms:play-services-maps:17.0.1")
-    implementation("com.google.android.gms:play-services-location:18.0.0")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
