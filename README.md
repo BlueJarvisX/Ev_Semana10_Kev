@@ -33,4 +33,4 @@ Para instalar la app en tu celular Android:
 3. Espera a que el proceso de Gradle finalice
 4. Haz clic en "Locate" cuando aparezca el mensaje de éxito
 5. Se abrirá una carpeta con el archivo `app-debug.apk`
-6. Puedes enviar ese archivo por WhatsApp y luego instalarlo en tu dispositivo Android
+6. Puedes enviar ese archivo por WhatsApp y luego instalarlo en tu dispositivo Android.
